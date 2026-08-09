@@ -1,0 +1,15 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}?v=course-hub-2">
+    <title>Upload Lecture | MetroClass</title>
+</head>
+<body class="hub-page d-flex flex-column">
+    <header class="hub-topbar d-flex align-items-center justify-content-between"><a href="{% url 'course_detail' course.id %}"><img src="{% static 'core/images/logo.png' %}" alt="MetroClass logo" class="hub-logo"></a><a href="{% url 'course_detail' course.id %}" class="btn btn-sm btn-outline-secondary">Back to Course</a></header>
+    <main class="container py-5"><div class="mx-auto hub-form-card"><p class="hub-eyebrow">{{ course.title }}</p><h1 class="hub-heading">Upload Lecture</h1><p class="hub-subtitle">Upload a file, add a Google Drive/website link, or add both.</p><form method="post" enctype="multipart/form-data" class="mt-4">{% csrf_token %}{% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}{% for field in form %}<div class="mb-3"><label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}</div>{% endfor %}<button type="submit" class="btn hub-primary-button">Add Lecture</button><a href="{% url 'course_detail' course.id %}" class="btn btn-outline-secondary ms-2">Cancel</a></form></div></main>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{% load static %} {% if user.is_authenticated %} {% include
+"courses/_hub_topbar.html" %} {% else %}
+<nav
+  class="navbar navbar-expand-lg navbar-dark public-navbar"
+  style="background-color: #14194b"
+>
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}"
+      ><img
+        src="{% static 'core/images/logo.png' %}"
+        alt="MetroClass logo"
+        height="48"
+        class="bg-white border border-white rounded p-1"
+    /></a>
+    <div class="ms-auto">
+      <a href="{% url 'login' %}" class="btn btn-outline-light me-2">Sign In</a
+      ><a
+        href="{% url 'register' %}"
+        class="btn text-white"
+        style="background-color: #ea1d22"
+        >Sign Up</a
+      >
+    </div>
+  </div>
+</nav>
+{% endif %}

@@ -1,0 +1,51 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+    <title>Submit Assignment | MetroClass</title>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark" style="background-color: #14194B;">
+        <div class="container">
+            <a href="{% url 'assignment_detail' assignment.id %}" class="navbar-brand d-flex align-items-center">
+                <img src="{% static 'core/images/logo.png' %}" alt="MetroClass logo" height="38" class="bg-white border border-white rounded p-1">
+            </a>
+            <a href="{% url 'assignment_detail' assignment.id %}" class="btn btn-outline-light">Back to Assignment</a>
+        </div>
+    </nav>
+
+    <main class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-7">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4 p-md-5">
+                        <p class="text-uppercase fw-semibold mb-2" style="color: #EA1D22;">{{ course.title }}</p>
+                        <h1 class="h2 fw-bold mb-2">{{ assignment.title }}</h1>
+                        <p class="text-muted mb-4">Upload your completed work. You can update your submission later.</p>
+
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {% for field in form %}
+                                <div class="mb-3">
+                                    <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% for error in field.errors %}
+                                        <div class="text-danger small mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                            <button type="submit" class="btn text-white w-100" style="background-color: #EA1D22;">
+                                {% if submission %}Update Submission{% else %}Submit Assignment{% endif %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

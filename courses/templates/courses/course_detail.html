@@ -1,0 +1,176 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}?v=course-hub-6">
+    <title>{{ course.title }} | MetroClass</title>
+</head>
+<body class="hub-page d-flex flex-column">
+    <header class="hub-topbar d-flex align-items-center justify-content-between">
+        <a href="{% url 'dashboard' %}" class="d-flex align-items-center text-decoration-none">
+            <img src="{% static 'core/images/logo.png' %}" alt="MetroClass logo" class="hub-logo">
+        </a>
+        <div class="d-flex align-items-center gap-2 gap-md-3">
+            <span class="hub-user-name">{% if user.role == 'teacher' %}Teacher{% else %}Student{% endif %} workspace</span>
+            <span class="hub-avatar">{{ user.display_name|first|upper }}</span>
+            <span class="hub-user-name">{{ user.display_name }}</span>
+            <form action="{% url 'logout' %}" method="post" class="m-0">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger">Sign Out</button>
+            </form>
+        </div>
+    </header>
+
+    <div class="hub-layout flex-grow-1">
+        {% include 'courses/_hub_sidebar.html' with active_nav='courses' %}
+
+        <main class="hub-main course-hub-main">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %}" role="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <section class="course-hero">
+                <div>
+                    <p class="course-hero-label">METROCLASS COURSE</p>
+                    <h1>{{ course.title }}</h1>
+                    <p class="course-hero-description">{{ course.description|default:"Welcome to this MetroClass course." }}</p>
+                    <div class="course-hero-meta">
+                        <span>Teacher: {{ course.teacher.display_name }}</span>
+                        <span>Course code: <strong>{{ course.course_code }}</strong></span>
+                    </div>
+                </div>
+                {% if user.role == "teacher" %}
+                    <details class="course-hero-menu">
+                        <summary aria-label="Course options">&#8942;</summary>
+                        <div class="course-hero-menu-content">
+                            <a href="{% url 'edit_course' course.id %}">Edit Course</a>
+                            <form action="{% url 'archive_course' course.id %}" method="post" onsubmit="return confirm('Archive this course? It will move to Archived Courses.');">
+                                {% csrf_token %}
+                                <button type="submit">Archive Course</button>
+                            </form>
+                            <form action="{% url 'delete_course' course.id %}" method="post" onsubmit="return confirm('Delete this course and all its content? This cannot be undone.');">
+                                {% csrf_token %}
+                                <button type="submit" class="course-delete-option">Delete Course</button>
+                            </form>
+                        </div>
+                    </details>
+                {% endif %}
+            </section>
+
+            <div class="course-tabs" role="tablist">
+                <button class="course-tab active" data-course-panel="stream" type="button">Stream</button>
+                <button class="course-tab" data-course-panel="classwork" type="button">Classwork</button>
+                <button class="course-tab" data-course-panel="people" type="button">People</button>
+            </div>
+
+            <section class="course-panel active" id="stream">
+                <div class="course-panel-actions">
+                    {% if user.role == "teacher" %}
+                        <a href="{% url 'create_announcement' course.id %}" class="btn hub-primary-button">Post Announcement</a>
+                        <a href="{% url 'create_material' course.id %}" class="btn btn-outline-secondary">+ Upload Lecture</a>
+                    {% endif %}
+                    {% if user.role != "teacher" %}
+                        <form action="{% url 'leave_course' course.id %}" method="post" onsubmit="return confirm('Leave this course? You will lose access to its announcements and assignments.');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Leave Course</button>
+                        </form>
+                    {% endif %}
+                </div>
+
+                {% if announcements %}
+                    {% with announcement=announcements.0 %}
+                        <article class="course-post course-pinned-post">
+                            <p class="course-pin-label">LATEST ANNOUNCEMENT</p>
+                            <div class="course-post-heading">
+                                <span class="course-post-icon">A</span>
+                                <div><h2>{{ announcement.title }}</h2><p>Posted by {{ announcement.author.display_name }} · {{ announcement.created_at|date:"M d, Y, g:i A" }}</p></div>
+                                {% if user.role == "teacher" %}
+                                    <div class="course-post-controls">
+                                        <a href="{% url 'edit_announcement' announcement.id %}">Edit</a>
+                                        <form action="{% url 'delete_announcement' announcement.id %}" method="post" onsubmit="return confirm('Delete this announcement?');">{% csrf_token %}<button type="submit">Delete</button></form>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <p class="course-post-message">{{ announcement.message|linebreaksbr }}</p>
+                        </article>
+                    {% endwith %}
+
+                    {% for announcement in announcements|slice:"1:" %}
+                        <article class="course-post">
+                            <div class="course-post-heading">
+                                <span class="course-post-icon">A</span>
+                                <div><h2>{{ announcement.title }}</h2><p>Posted by {{ announcement.author.display_name }} · {{ announcement.created_at|date:"M d, Y, g:i A" }}</p></div>
+                                {% if user.role == "teacher" %}
+                                    <div class="course-post-controls">
+                                        <a href="{% url 'edit_announcement' announcement.id %}">Edit</a>
+                                        <form action="{% url 'delete_announcement' announcement.id %}" method="post" onsubmit="return confirm('Delete this announcement?');">{% csrf_token %}<button type="submit">Delete</button></form>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <p class="course-post-message">{{ announcement.message|linebreaksbr }}</p>
+                        </article>
+                    {% endfor %}
+                {% else %}
+                    <div class="course-empty-state">No announcements have been posted yet.</div>
+                {% endif %}
+
+                <div class="course-lecture-heading">
+                    <h2>Course Lectures</h2>
+                    <span>{{ materials|length }} uploaded</span>
+                </div>
+                {% for material in materials %}
+                    <article class="course-lecture-card">
+                        <span class="course-lecture-number">{{ forloop.counter|stringformat:"02d" }}</span>
+                        <div class="course-work-content"><h3>{{ material.title }}</h3><p>Uploaded by {{ material.uploaded_by.display_name }} on {{ material.uploaded_at|date:"M d, Y" }}</p><small>{% if material.file %}File lecture{% else %}Online link{% endif %}</small></div>
+                        <div class="course-lecture-links">{% if material.file %}<a href="{{ material.file.url }}" class="btn btn-sm btn-outline-secondary" target="_blank">Download</a>{% endif %}{% if material.external_link %}<a href="{{ material.external_link }}" class="btn btn-sm btn-outline-secondary" target="_blank" rel="noopener">Open Link</a>{% endif %}</div>
+                        {% if user.role == "teacher" %}<div class="course-work-controls"><a href="{% url 'edit_material' material.id %}">Edit</a><form action="{% url 'delete_material' material.id %}" method="post" onsubmit="return confirm('Delete this lecture?');">{% csrf_token %}<button type="submit">Delete</button></form></div>{% endif %}
+                    </article>
+                {% empty %}
+                    <div class="course-empty-state">No lectures have been uploaded yet.</div>
+                {% endfor %}
+            </section>
+
+            <section class="course-panel" id="classwork">
+                <div class="course-section-heading">
+                    <div><p class="hub-eyebrow">LEARNING SPACE</p><h2>Classwork</h2></div>
+                    {% if user.role == "teacher" %}<a href="{% url 'create_assignment' course.id %}" class="btn hub-primary-button">+ Create Assignment</a>{% endif %}
+                </div>
+                {% for assignment in assignments %}
+                    <article class="course-work-card">
+                        <span class="course-work-icon">A</span>
+                        <div class="course-work-content"><h3>{{ assignment.title }}</h3><p>{{ assignment.instructions|truncatewords:20 }}</p><small>Due {{ assignment.due_date|date:"M d, Y, g:i A" }}</small></div>
+                        <a href="{% url 'assignment_detail' assignment.id %}" class="btn btn-sm btn-outline-secondary">Open</a>
+                        {% if user.role == "teacher" %}
+                            <div class="course-work-controls"><a href="{% url 'edit_assignment' assignment.id %}">Edit</a><form action="{% url 'delete_assignment' assignment.id %}" method="post" onsubmit="return confirm('Delete this assignment and all student submissions?');">{% csrf_token %}<button type="submit">Delete</button></form></div>
+                        {% endif %}
+                    </article>
+                {% empty %}
+                    <div class="course-empty-state">No assignments have been created yet.</div>
+                {% endfor %}
+            </section>
+
+            <section class="course-panel" id="people">
+                <div class="course-section-heading"><div><p class="hub-eyebrow">COURSE MEMBERS</p><h2>People</h2></div></div>
+                <article class="course-people-card"><h3>Teacher</h3><div class="course-person"><span class="course-person-avatar">{{ course.teacher.display_name|first|upper }}</span><div><strong>{{ course.teacher.display_name }}</strong><small>Course teacher</small></div></div></article>
+                <article class="course-people-card"><h3>Students <span>{{ enrollments|length }}</span></h3>{% for enrollment in enrollments %}<div class="course-person"><span class="course-person-avatar student">{{ enrollment.student.display_name|first|upper }}</span><div><strong>{{ enrollment.student.display_name }}</strong><small>Joined {{ enrollment.joined_at|date:"M d, Y" }}</small></div></div>{% empty %}<p class="mb-0 text-muted">No students have joined yet.</p>{% endfor %}</article>
+            </section>
+        </main>
+    </div>
+
+    <footer class="hub-footer">&copy; 2026 MetroClass. Classroom management made simple.</footer>
+
+    <script>
+        const courseTabs = document.querySelectorAll('.course-tab');
+        const coursePanels = document.querySelectorAll('.course-panel');
+        courseTabs.forEach(tab => tab.addEventListener('click', () => {
+            courseTabs.forEach(item => item.classList.toggle('active', item === tab));
+            coursePanels.forEach(panel => panel.classList.toggle('active', panel.id === tab.dataset.coursePanel));
+        }));
+    </script>
+</body>
+</html>

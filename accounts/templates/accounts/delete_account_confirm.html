@@ -1,0 +1,31 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}?v=learning-hub-4">
+    <title>Delete Account | MetroClass</title>
+</head>
+<body class="hub-page d-flex flex-column">
+    {% include "courses/_hub_topbar.html" %}
+    <div class="hub-layout flex-grow-1">
+        {% include "courses/_hub_sidebar.html" %}
+        <main class="hub-main">
+            <p class="hub-eyebrow">ACCOUNT SECURITY</p>
+            <h1 class="hub-heading text-danger">Delete your account?</h1>
+            <div class="hub-summary-card" style="max-width: 640px;">
+                <p>Are you sure you want to permanently delete your MetroClass account?</p>
+                <p class="mb-4">Your profile and related course data cannot be restored after deletion.</p>
+                <form method="post" class="d-flex flex-wrap gap-2">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Yes, Continue</button>
+                    <a href="{% url 'edit_profile' %}" class="btn btn-outline-secondary">Cancel</a>
+                </form>
+            </div>
+        </main>
+    </div>
+    <footer class="hub-footer">&copy; 2026 MetroClass. Classroom management made simple.</footer>
+</body>
+</html>

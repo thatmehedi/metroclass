@@ -1,0 +1,60 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}?v=course-hub-2">
+    <title>{{ assignment.title }} | MetroClass</title>
+</head>
+<body class="hub-page d-flex flex-column">
+    <header class="hub-topbar d-flex align-items-center justify-content-between">
+        <a href="{% url 'dashboard' %}" class="d-flex align-items-center text-decoration-none"><img src="{% static 'core/images/logo.png' %}" alt="MetroClass logo" class="hub-logo"></a>
+        <div class="d-flex align-items-center gap-2 gap-md-3"><span class="hub-user-name">{% if user.role == 'teacher' %}Teacher{% else %}Student{% endif %} workspace</span><span class="hub-avatar">{{ user.display_name|first|upper }}</span><span class="hub-user-name">{{ user.display_name }}</span><form action="{% url 'logout' %}" method="post" class="m-0">{% csrf_token %}<button type="submit" class="btn btn-sm btn-outline-danger">Sign Out</button></form></div>
+    </header>
+
+    <div class="hub-layout flex-grow-1">
+        {% include 'courses/_hub_sidebar.html' with active_nav='courses' %}
+        <main class="hub-main">
+            {% if messages %}{% for message in messages %}<div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %}" role="alert">{{ message }}</div>{% endfor %}{% endif %}
+
+            <a href="{% url 'course_detail' course.id %}" class="btn btn-sm btn-outline-secondary mb-4">← Back to {{ course.title }}</a>
+            <p class="hub-eyebrow">{{ course.title }}</p>
+            <h1 class="hub-heading">{{ assignment.title }}</h1>
+            <p class="hub-subtitle">Due: {{ assignment.due_date|date:"M d, Y, g:i A" }}</p>
+
+            <article class="hub-summary-card mt-4">
+                <h2 class="h4 fw-bold mb-3">Instructions</h2>
+                <p class="mb-0">{{ assignment.instructions|linebreaksbr }}</p>
+            </article>
+
+            {% if user.role == "teacher" %}
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <a href="{% url 'view_submissions' assignment.id %}" class="btn hub-primary-button">View Submissions ({{ assignment.submissions.count }})</a>
+                    <a href="{% url 'edit_assignment' assignment.id %}" class="btn btn-outline-secondary">Edit Assignment</a>
+                    <form action="{% url 'delete_assignment' assignment.id %}" method="post" onsubmit="return confirm('Delete this assignment and all student submissions?');">{% csrf_token %}<button type="submit" class="btn btn-outline-danger">Delete Assignment</button></form>
+                </div>
+            {% elif submission %}
+                <article class="hub-summary-card mt-4">
+                    <h2 class="h4 fw-bold mb-3">Your Submission</h2>
+                    <p><a href="{{ submission.file.url }}" target="_blank">Open submitted file</a></p>
+                    {% if submission.comment %}<p>{{ submission.comment }}</p>{% endif %}
+                    <p class="text-muted small mb-0">Last updated: {{ submission.updated_at|date:"M d, Y, g:i A" }}</p>
+                </article>
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <a href="{% url 'submit_assignment' assignment.id %}" class="btn btn-outline-secondary">Update Submission</a>
+                    <form action="{% url 'delete_submission' assignment.id %}" method="post" onsubmit="return confirm('Delete your submission? You will need to upload it again if you want to submit later.');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger">Delete Submission</button>
+                    </form>
+                </div>
+            {% else %}
+                <a href="{% url 'submit_assignment' assignment.id %}" class="btn hub-primary-button mt-4">Submit Assignment</a>
+            {% endif %}
+        </main>
+    </div>
+
+    <footer class="hub-footer">&copy; 2026 MetroClass. Classroom management made simple.</footer>
+</body>
+</html>

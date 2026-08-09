@@ -1,0 +1,7 @@
+<div class="col-md-6 col-xl-4">
+  <article class="hub-course-card h-100 d-flex flex-column">
+    <div class="hub-course-banner"><h3>{{ course.title }}</h3><p>{% if course.group %}{{ course.group.name }}{% else %}MetroClass Course{% endif %}</p></div>
+    <details class="hub-course-menu"><summary aria-label="Course options">&#8942;</summary><div class="hub-course-menu-list"><a href="{% url 'course_detail' course.id %}">Manage Course</a><a href="{% url 'edit_course' course.id %}">Edit Course</a><form action="{% url 'archive_course' course.id %}" method="post" onsubmit="return confirm('Archive this course? It will move to Archived Courses.');">{% csrf_token %}<button type="submit">Archive Course</button></form><form action="{% url 'delete_course' course.id %}" method="post" onsubmit="return confirm('Delete this course and all its content?');">{% csrf_token %}<button type="submit" class="hub-danger">Delete Course</button></form></div></details>
+    <div class="hub-course-body d-flex flex-column flex-grow-1"><div class="d-flex justify-content-between hub-course-meta mb-3"><span>Code: {{ course.course_code }}</span><span>{{ course.enrollments.count }} student{{ course.enrollments.count|pluralize }}</span></div><a href="{% url 'course_detail' course.id %}" class="btn btn-outline-secondary mt-auto">Open Course</a></div>
+  </article>
+</div>

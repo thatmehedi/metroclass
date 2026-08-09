@@ -1,0 +1,10 @@
+{% load static %}
+<header class="hub-topbar d-flex align-items-center justify-content-between">
+  <a href="{% url 'dashboard' %}" class="d-flex align-items-center text-decoration-none"><img src="{% static 'core/images/logo.png' %}" alt="MetroClass logo" class="hub-logo"></a>
+  <div class="d-flex align-items-center gap-2 gap-md-3">
+    <span class="hub-user-name">{% if user.role == 'teacher' %}Teacher{% else %}Student{% endif %} workspace</span>
+    <span class="hub-avatar">{{ user.display_name|first|upper }}</span>
+    <span class="hub-user-name">{{ user.display_name }}</span>
+    <form action="{% url 'logout' %}" method="post" class="m-0">{% csrf_token %}<button type="submit" class="btn btn-sm btn-outline-danger">Sign Out</button></form>
+  </div>
+</header>
