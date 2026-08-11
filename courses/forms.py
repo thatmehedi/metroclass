@@ -1,4 +1,7 @@
+from datetime import timedelta
+
 from django import forms
+from django.utils import timezone
 
 from .models import Announcement, Assignment, Course, CourseGroup, StudyMaterial, Submission
 
@@ -128,6 +131,18 @@ class AssignmentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["due_date"].input_formats = ["%Y-%m-%dT%H:%M"]
+        minimum_due_date = timezone.localtime(timezone.now() + timedelta(minutes=1))
+        self.fields["due_date"].widget.attrs["min"] = minimum_due_date.strftime(
+            "%Y-%m-%dT%H:%M"
+        )
+
+    def clean_due_date(self):
+        due_date = self.cleaned_data["due_date"]
+
+        if due_date <= timezone.now():
+            raise forms.ValidationError("Due date must be in the future.")
+
+        return due_date
 
 
 class SubmissionForm(forms.ModelForm):
