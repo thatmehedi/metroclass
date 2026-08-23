@@ -1,8 +1,9 @@
 from datetime import timedelta
 
 from django.contrib import messages
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
 from django.db.models import Count, Q
 from django.shortcuts import redirect, render
 from django.utils import timezone
@@ -168,6 +169,29 @@ def edit_profile(request):
     return render(
         request,
         "accounts/edit_profile.html",
+        {"form": form, "active_nav": "settings"},
+    )
+
+
+@login_required
+def change_password(request):
+    """Let an authenticated user securely change their own password."""
+    if request.method == "POST":
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, "Your password has been changed successfully.")
+            return redirect("edit_profile")
+    else:
+        form = PasswordChangeForm(request.user)
+
+    for field in form.fields.values():
+        field.widget.attrs["class"] = "form-control"
+
+    return render(
+        request,
+        "accounts/change_password.html",
         {"form": form, "active_nav": "settings"},
     )
 
