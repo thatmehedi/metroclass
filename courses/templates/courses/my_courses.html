@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'core/css/style.css' %}?v=course-groups-3">
+  <link rel="stylesheet" href="{% static 'core/css/style.css' %}?v=mobile-layout-20260823c">
   <title>My Courses | MetroClass</title>
 </head>
 <body class="hub-page d-flex flex-column">
@@ -30,7 +30,7 @@
         {% endif %}
         {% if not courses %}<div class="hub-summary-card">You have not created any courses yet. Use <strong>Create Course</strong> to begin.</div>{% endif %}
       {% else %}
-        <div class="row g-4">{% for course in courses %}<div class="col-md-6 col-xl-4"><article class="hub-course-card h-100 d-flex flex-column"><div class="hub-course-banner"><h3>{{ course.title }}</h3><p>{{ course.teacher.display_name }}</p></div><details class="hub-course-menu"><summary aria-label="Course options">&#8942;</summary><div class="hub-course-menu-list"><a href="{% url 'course_detail' course.id %}">Open Course</a><form action="{% url 'leave_course' course.id %}" method="post" onsubmit="return confirm('Leave this course?');">{% csrf_token %}<button type="submit" class="hub-danger">Leave Course</button></form></div></details><div class="hub-course-body d-flex flex-column flex-grow-1"><p class="hub-course-meta">Joined MetroClass course</p><a href="{% url 'course_detail' course.id %}" class="btn btn-outline-secondary mt-auto">Open Course</a></div></article></div>{% empty %}<div class="col-12"><div class="hub-summary-card">No courses found yet.</div></div>{% endfor %}</div>
+        <div class="row g-4">{% for course in courses %}<div class="col-md-6 col-xl-4"><article class="hub-course-card course-accent h-100 d-flex flex-column" style="--course-accent: {{ course.accent_color }};"><div class="hub-course-banner"><h3>{{ course.title }}</h3><p>{{ course.teacher.display_name }}</p></div><details class="hub-course-menu"><summary aria-label="Course options">&#8942;</summary><div class="hub-course-menu-list"><a href="{% url 'course_detail' course.id %}">Open Course</a><form action="{% url 'leave_course' course.id %}" method="post" onsubmit="return confirm('Leave this course?');">{% csrf_token %}<button type="submit" class="hub-danger">Leave Course</button></form></div></details><div class="hub-course-body d-flex flex-column flex-grow-1"><p class="hub-course-meta">Joined MetroClass course</p><a href="{% url 'course_detail' course.id %}" class="btn btn-outline-secondary mt-auto">Open Course</a></div></article></div>{% empty %}<div class="col-12"><div class="hub-summary-card">No courses found yet.</div></div>{% endfor %}</div>
       {% endif %}
     </main>
   </div>

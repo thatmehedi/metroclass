@@ -10,14 +10,14 @@
     />
     <link
       rel="stylesheet"
-      href="{% static 'core/css/style.css' %}?v=public-nav-1"
+      href="{% static 'core/css/style.css' %}?v=mobile-layout-20260823c"
     />
     <title>MetroClass</title>
   </head>
-  <body class="bg-light d-flex flex-column min-vh-100">
+  <body class="bg-light public-page d-flex flex-column min-vh-100">
     {% include "core/_site_nav.html" %}
 
-    <main class="container py-5 flex-grow-1">
+    <main class="container public-home py-5 flex-grow-1">
       {% if messages %} {% for message in messages %}
       <div class="alert alert-success alert-dismissible fade show" role="alert">
         {{ message }}
@@ -29,25 +29,24 @@
         ></button>
       </div>
       {% endfor %} {% endif %}
-      <div class="row align-items-center min-vh-75">
+      <div class="row align-items-center public-hero public-glass-hero">
         <div class="col-lg-7">
-          <p class="fw-semibold text-uppercase mb-2" style="color: #ea1d22">
+          <p class="public-eyebrow fw-semibold text-uppercase mb-2">
             Learn. Teach. Succeed.
           </p>
 
-          <h1 class="display-4 fw-bold mb-3">
+          <h1 class="public-title display-4 fw-bold mb-3">
             Manage your classroom in one simple place.
           </h1>
 
-          <p class="lead mb-4">
+          <p class="public-lead lead mb-4">
             MetroClass helps teachers organize courses and helps students stay
             connected with learning materials, announcements, and assignments.
           </p>
 
           <a
             href="{% url 'register' %}"
-            class="btn text-white btn-lg me-2"
-            style="background-color: #ea1d22"
+            class="btn hub-primary-button btn-lg me-2"
           >
             Get Started
           </a>
@@ -56,15 +55,15 @@
           >
         </div>
       </div>
-      <section id="features" class="py-5">
+      <section id="features" class="public-features py-5">
         <div class="text-center mb-4">
-          <h2 class="fw-bold">Everything for your classroom</h2>
+          <h2 class="public-section-title fw-bold">Everything for your classroom</h2>
           <p class="text-muted">Simple tools for teachers and students.</p>
         </div>
 
         <div class="row g-4">
           <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm">
+            <div class="card public-feature-card h-100 border-0">
               <div class="card-body p-4">
                 <h3 class="h4 fw-bold">For Teachers</h3>
                 <p class="mb-0">
@@ -76,7 +75,7 @@
           </div>
 
           <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm">
+            <div class="card public-feature-card h-100 border-0">
               <div class="card-body p-4">
                 <h3 class="h4 fw-bold">For Students</h3>
                 <p class="mb-0">
@@ -88,7 +87,7 @@
           </div>
 
           <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm">
+            <div class="card public-feature-card h-100 border-0">
               <div class="card-body p-4">
                 <h3 class="h4 fw-bold">Stay Organized</h3>
                 <p class="mb-0">

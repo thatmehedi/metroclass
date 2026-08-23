@@ -9,11 +9,28 @@ from .forms import (
     CourseEditForm,
     CourseForm,
     CourseGroupForm,
+    GradeSubmissionForm,
     JoinCourseForm,
+    QuickAnnouncementForm,
+    QuickAssignmentForm,
     StudyMaterialForm,
     SubmissionForm,
 )
 from .models import Announcement, Assignment, Course, CourseGroup, Enrollment, StudyMaterial, Submission
+
+
+def add_student_submission_status(assignments, student):
+    """Attach the current student's submission to each assignment for display."""
+    assignments = list(assignments)
+    submissions = Submission.objects.filter(
+        assignment__in=assignments, student=student
+    )
+    submissions_by_assignment = {
+        submission.assignment_id: submission for submission in submissions
+    }
+    for assignment in assignments:
+        assignment.student_submission = submissions_by_assignment.get(assignment.id)
+    return assignments
 
 
 @login_required
@@ -137,7 +154,8 @@ def join_course(request):
 
         if form.is_valid():
             course = Course.objects.filter(
-                course_code=form.cleaned_data["course_code"]
+                course_code=form.cleaned_data["course_code"],
+                is_archived=False,
             ).first()
 
             if course is None:
@@ -178,6 +196,8 @@ def course_detail(request, course_id):
 
     announcements = course.announcements.select_related("author")
     assignments = course.assignments.all()
+    if request.user.role == "student":
+        assignments = add_student_submission_status(assignments, request.user)
     materials = course.study_materials.select_related("uploaded_by")
     enrollments = course.enrollments.select_related("student")
     return render(
@@ -284,6 +304,37 @@ def create_announcement(request, course_id):
 
 
 @login_required
+def quick_announcement(request):
+    if request.user.role != "teacher":
+        messages.error(request, "Only teachers can post announcements.")
+        return redirect("dashboard")
+
+    courses = request.user.created_courses.filter(is_archived=False).order_by("-created_at")
+    if not courses.exists():
+        messages.info(request, "Create a course before posting an announcement.")
+        return redirect("create_course")
+
+    if request.method == "POST":
+        form = QuickAnnouncementForm(request.POST, teacher=request.user)
+        if form.is_valid():
+            announcement = Announcement.objects.create(
+                course=form.cleaned_data["course"],
+                author=request.user,
+                title=form.cleaned_data["title"],
+                message=form.cleaned_data["message"],
+            )
+            messages.success(request, "Announcement posted successfully.")
+            return redirect("course_detail", course_id=announcement.course_id)
+    else:
+        form = QuickAnnouncementForm(
+            teacher=request.user,
+            initial={"course": courses.first()},
+        )
+
+    return render(request, "courses/quick_announcement.html", {"form": form})
+
+
+@login_required
 def edit_announcement(request, announcement_id):
     announcement = get_object_or_404(Announcement, id=announcement_id)
     course = announcement.course
@@ -367,7 +418,7 @@ def create_assignment(request, course_id):
         return redirect("course_detail", course_id=course.id)
 
     if request.method == "POST":
-        form = AssignmentForm(request.POST)
+        form = AssignmentForm(request.POST, request.FILES)
 
         if form.is_valid():
             assignment = form.save(commit=False)
@@ -387,6 +438,38 @@ def create_assignment(request, course_id):
 
 
 @login_required
+def quick_assignment(request):
+    if request.user.role != "teacher":
+        messages.error(request, "Only teachers can create assignments.")
+        return redirect("dashboard")
+
+    courses = request.user.created_courses.filter(is_archived=False).order_by("-created_at")
+    if not courses.exists():
+        messages.info(request, "Create a course before adding an assignment.")
+        return redirect("create_course")
+
+    if request.method == "POST":
+        form = QuickAssignmentForm(request.POST, teacher=request.user)
+        if form.is_valid():
+            assignment = Assignment.objects.create(
+                course=form.cleaned_data["course"],
+                created_by=request.user,
+                title=form.cleaned_data["title"],
+                instructions=form.cleaned_data["instructions"],
+                due_date=form.cleaned_data["due_date"],
+            )
+            messages.success(request, "Assignment created successfully.")
+            return redirect("assignment_detail", assignment_id=assignment.id)
+    else:
+        form = QuickAssignmentForm(
+            teacher=request.user,
+            initial={"course": courses.first()},
+        )
+
+    return render(request, "courses/quick_assignment.html", {"form": form})
+
+
+@login_required
 def edit_assignment(request, assignment_id):
     assignment = get_object_or_404(Assignment, id=assignment_id)
     course = assignment.course
@@ -396,7 +479,7 @@ def edit_assignment(request, assignment_id):
         return redirect("dashboard")
 
     if request.method == "POST":
-        form = AssignmentForm(request.POST, instance=assignment)
+        form = AssignmentForm(request.POST, request.FILES, instance=assignment)
 
         if form.is_valid():
             form.save()
@@ -541,6 +624,43 @@ def view_submissions(request, assignment_id):
 
 
 @login_required
+def grade_submission(request, submission_id):
+    submission = get_object_or_404(
+        Submission.objects.select_related("assignment", "assignment__course", "student"),
+        id=submission_id,
+    )
+    assignment = submission.assignment
+    course = assignment.course
+
+    if request.user.role != "teacher" or course.teacher_id != request.user.id:
+        messages.error(request, "Only this course's teacher can grade submissions.")
+        return redirect("dashboard")
+
+    if request.method == "POST":
+        form = GradeSubmissionForm(request.POST, instance=submission)
+        if form.is_valid():
+            graded_submission = form.save(commit=False)
+            graded_submission.graded_at = timezone.now()
+            graded_submission.save()
+            messages.success(request, "Marks and feedback have been saved.")
+            return redirect("view_submissions", assignment_id=assignment.id)
+    else:
+        form = GradeSubmissionForm(instance=submission)
+
+    return render(
+        request,
+        "courses/grade_submission.html",
+        {
+            "course": course,
+            "assignment": assignment,
+            "submission": submission,
+            "form": form,
+            "active_course_id": course.id,
+        },
+    )
+
+
+@login_required
 def delete_course(request, course_id):
     course = get_object_or_404(Course, id=course_id)
 
@@ -637,6 +757,7 @@ def to_review(request):
     submissions = Submission.objects.filter(
         assignment__course__teacher=request.user,
         assignment__course__is_archived=False,
+        graded_at__isnull=True,
     ).select_related("student", "assignment", "assignment__course")
     return render(
         request,
@@ -677,6 +798,8 @@ def deadlines(request):
             due_date__gte=timezone.now(),
         ).select_related("course").order_by("due_date")
 
+        assignments = add_student_submission_status(assignments, request.user)
+
     today = timezone.localdate()
     for assignment in assignments:
         assignment.days_left = max((assignment.due_date.date() - today).days, 0)
@@ -697,5 +820,5 @@ def archived_courses(request):
     return render(
         request,
         "courses/archived_courses.html",
-        {"active_nav": "archived", "courses": courses},
+        {"active_nav": "settings", "courses": courses},
     )

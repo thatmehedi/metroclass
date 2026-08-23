@@ -6,18 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}?v=mobile-layout-20260823c">
 
     <title>Sign Up | MetroClass</title>
 </head>
-<body class="bg-light d-flex flex-column min-vh-100">
+<body class="bg-light public-page d-flex flex-column min-vh-100">
     {% include "core/_site_nav.html" %}
-    <main class="container py-5 flex-grow-1">
+    <main class="container public-auth-main py-5 flex-grow-1">
         <div class="row justify-content-center">
             <div class="col-md-8 col-lg-6">
-                <div class="card border-0 shadow-sm">
+                <div class="card public-auth-card border-0">
                     <div class="card-body p-4 p-md-5">
-                        <h1 class="h2 fw-bold text-center mb-2">Create your account</h1>
+                        <h1 class="public-auth-title h2 fw-bold text-center mb-2">Create your account</h1>
                         <p class="text-center text-muted mb-4">
                             Join MetroClass as a Student or Teacher.
                         </p>
@@ -46,7 +46,7 @@
                                 </div>
                             {% endfor %}
 
-                            <button type="submit" class="btn text-white w-100" style="background-color: #EA1D22;">
+                            <button type="submit" class="btn hub-primary-button w-100">
                                 Create Account
                             </button>
                         </form>

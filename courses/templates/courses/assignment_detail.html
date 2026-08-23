@@ -5,14 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'core/css/style.css' %}?v=course-hub-2">
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}?v=mobile-layout-20260823c">
     <title>{{ assignment.title }} | MetroClass</title>
 </head>
 <body class="hub-page d-flex flex-column">
-    <header class="hub-topbar d-flex align-items-center justify-content-between">
-        <a href="{% url 'dashboard' %}" class="d-flex align-items-center text-decoration-none"><img src="{% static 'core/images/logo.png' %}" alt="MetroClass logo" class="hub-logo"></a>
-        <div class="d-flex align-items-center gap-2 gap-md-3"><span class="hub-user-name">{% if user.role == 'teacher' %}Teacher{% else %}Student{% endif %} workspace</span><span class="hub-avatar">{{ user.display_name|first|upper }}</span><span class="hub-user-name">{{ user.display_name }}</span><form action="{% url 'logout' %}" method="post" class="m-0">{% csrf_token %}<button type="submit" class="btn btn-sm btn-outline-danger">Sign Out</button></form></div>
-    </header>
+    {% include 'courses/_hub_topbar.html' %}
 
     <div class="hub-layout flex-grow-1">
         {% include 'courses/_hub_sidebar.html' with active_nav='courses' %}
@@ -24,10 +21,29 @@
             <h1 class="hub-heading">{{ assignment.title }}</h1>
             <p class="hub-subtitle">Due: {{ assignment.due_date|date:"M d, Y, g:i A" }}</p>
 
+            {% if user.role == "student" %}
+                <div class="assignment-detail-status">
+                    {% if submission %}
+                        {% if submission.graded_at %}<span class="assignment-status assignment-status-graded">Finished · {{ submission.score }} marks</span>
+                        {% else %}<span class="assignment-status assignment-status-submitted">Done · Waiting for teacher review</span>{% endif %}
+                    {% else %}<span class="assignment-status assignment-status-todo">To do · Submit before the due date</span>{% endif %}
+                </div>
+            {% endif %}
+
             <article class="hub-summary-card mt-4">
                 <h2 class="h4 fw-bold mb-3">Instructions</h2>
                 <p class="mb-0">{{ assignment.instructions|linebreaksbr }}</p>
             </article>
+
+            {% if assignment.resource_file or assignment.resource_link %}
+                <article class="hub-summary-card mt-3">
+                    <h2 class="h4 fw-bold mb-3">Teacher Resources</h2>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% if assignment.resource_file %}<a href="{{ assignment.resource_file.url }}" class="btn btn-outline-secondary" target="_blank">Download Attachment</a>{% endif %}
+                        {% if assignment.resource_link %}<a href="{{ assignment.resource_link }}" class="btn btn-outline-secondary" target="_blank" rel="noopener">Open Resource Link</a>{% endif %}
+                    </div>
+                </article>
+            {% endif %}
 
             {% if user.role == "teacher" %}
                 <div class="d-flex flex-wrap gap-2 mt-4">
@@ -41,6 +57,15 @@
                     <p><a href="{{ submission.file.url }}" target="_blank">Open submitted file</a></p>
                     {% if submission.comment %}<p>{{ submission.comment }}</p>{% endif %}
                     <p class="text-muted small mb-0">Last updated: {{ submission.updated_at|date:"M d, Y, g:i A" }}</p>
+                </article>
+                <article class="hub-summary-card mt-4">
+                    <h2 class="h4 fw-bold mb-3">Grade &amp; Feedback</h2>
+                    {% if submission.graded_at %}
+                        <p><strong>Marks:</strong> {{ submission.score|default:"Not provided" }}</p>
+                        {% if submission.feedback %}<p class="mb-0">{{ submission.feedback|linebreaksbr }}</p>{% else %}<p class="mb-0 text-muted">Your teacher has not added written feedback.</p>{% endif %}
+                    {% else %}
+                        <p class="mb-0 text-muted">Waiting for your teacher to review this submission.</p>
+                    {% endif %}
                 </article>
                 <div class="d-flex flex-wrap gap-2 mt-4">
                     <a href="{% url 'submit_assignment' assignment.id %}" class="btn btn-outline-secondary">Update Submission</a>

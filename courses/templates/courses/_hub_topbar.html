@@ -1,10 +1,36 @@
 {% load static %}
-<header class="hub-topbar d-flex align-items-center justify-content-between">
-  <a href="{% url 'dashboard' %}" class="d-flex align-items-center text-decoration-none"><img src="{% static 'core/images/logo.png' %}" alt="MetroClass logo" class="hub-logo"></a>
-  <div class="d-flex align-items-center gap-2 gap-md-3">
-    <span class="hub-user-name">{% if user.role == 'teacher' %}Teacher{% else %}Student{% endif %} workspace</span>
+<header class="hub-topbar d-flex align-items-center">
+  <div class="d-flex align-items-center gap-3">
+    <button class="hub-desktop-nav-toggle" type="button" aria-label="Collapse navigation" aria-expanded="true">&#9776;</button>
+    <button class="mobile-nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+    <a href="{% url 'dashboard' %}" class="d-flex align-items-center text-decoration-none"><img src="{% static 'core/images/logo.png' %}" alt="MetroClass logo" class="hub-logo"></a>
+  </div>
+  <nav class="hub-top-navigation" aria-label="Main navigation">
+    <a href="{% url 'dashboard' %}" class="{% if active_nav == 'overview' %}active{% endif %}">Overview</a>
+    <details class="hub-top-course-menu {% if active_nav == 'courses' or active_course_id %}active{% endif %}">
+      <summary>My Courses <span class="hub-top-course-chevron" aria-hidden="true"></span></summary>
+      <div class="hub-top-course-list">
+        {% for course in navigation_courses %}
+          <a href="{% url 'course_detail' course.id %}"><strong>{{ course.title }}</strong><small>Code: {{ course.course_code }}</small></a>
+        {% empty %}
+          <span>No courses yet.</span>
+        {% endfor %}
+        <a class="hub-top-all-courses" href="{% url 'my_courses' %}">View all courses</a>
+      </div>
+    </details>
+    {% if user.role == 'teacher' %}
+      <a href="{% url 'to_review' %}" class="{% if active_nav == 'review' %}active{% endif %}">To Review</a>
+      <a href="{% url 'all_announcements' %}" class="{% if active_nav == 'announcements' %}active{% endif %}">Class Updates</a>
+    {% else %}
+      <a href="{% url 'all_announcements' %}" class="{% if active_nav == 'announcements' %}active{% endif %}">Announcements</a>
+      <a href="{% url 'deadlines' %}" class="{% if active_nav == 'deadlines' %}active{% endif %}">Deadlines</a>
+    {% endif %}
+    <a href="{% url 'edit_profile' %}" class="{% if active_nav == 'settings' %}active{% endif %}">Settings</a>
+  </nav>
+  <div class="hub-top-user d-flex align-items-center gap-2 gap-md-3">
+    <span class="hub-user-name hub-user-role">{% if user.role == 'teacher' %}Teacher{% else %}Student{% endif %} workspace</span>
     <span class="hub-avatar">{{ user.display_name|first|upper }}</span>
-    <span class="hub-user-name">{{ user.display_name }}</span>
+    <span class="hub-user-name hub-user-display">{{ user.display_name }}</span>
     <form action="{% url 'logout' %}" method="post" class="m-0">{% csrf_token %}<button type="submit" class="btn btn-sm btn-outline-danger">Sign Out</button></form>
   </div>
 </header>

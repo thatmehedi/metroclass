@@ -118,7 +118,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+# MetroClass is used from Bangladesh; this keeps displayed deadlines and the
+# datetime-local assignment form aligned with the classroom's local time.
+TIME_ZONE = 'Asia/Dhaka'
 
 USE_I18N = True
 
@@ -131,7 +133,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-MEDIA_URL = "media/"
+# A leading slash is required so uploaded-file links work from every route,
+# including nested course and assignment pages.
+MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 AUTH_USER_MODEL = "accounts.User"

@@ -1,0 +1,44 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}?v=mobile-layout-20260823c">
+    <title>Grade Submission | MetroClass</title>
+</head>
+<body class="hub-page d-flex flex-column">
+    {% include "courses/_hub_topbar.html" %}
+    <div class="hub-layout flex-grow-1">
+        {% include "courses/_hub_sidebar.html" with active_nav="review" %}
+        <main class="hub-main">
+            <div class="hub-form-page">
+                <a href="{% url 'view_submissions' assignment.id %}" class="btn btn-sm btn-outline-secondary hub-back-link">Back to Submissions</a>
+                <p class="hub-eyebrow">{{ course.title }}</p>
+                <h1 class="hub-heading">Grade Submission</h1>
+                <p class="hub-subtitle">{{ submission.student.display_name }} — {{ assignment.title }}</p>
+
+                <section class="hub-form-card">
+                    <div class="hub-info-row">
+                        <div><strong>Submitted file:</strong> <a href="{{ submission.file.url }}" target="_blank">Open submitted file</a></div>
+                        {% if submission.comment %}<div class="mt-2"><strong>Student note:</strong> {{ submission.comment }}</div>{% endif %}
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+                                {{ field }}
+                                {% for error in field.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn hub-primary-button">Save Grade &amp; Feedback</button>
+                    </form>
+                </section>
+            </div>
+        </main>
+    </div>
+    <footer class="hub-footer">&copy; 2026 MetroClass. Classroom management made simple.</footer>
+</body>
+</html>

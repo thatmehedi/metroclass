@@ -5,24 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'core/css/style.css' %}?v=course-hub-6">
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}?v=mobile-layout-20260823c">
     <title>{{ course.title }} | MetroClass</title>
 </head>
 <body class="hub-page d-flex flex-column">
-    <header class="hub-topbar d-flex align-items-center justify-content-between">
-        <a href="{% url 'dashboard' %}" class="d-flex align-items-center text-decoration-none">
-            <img src="{% static 'core/images/logo.png' %}" alt="MetroClass logo" class="hub-logo">
-        </a>
-        <div class="d-flex align-items-center gap-2 gap-md-3">
-            <span class="hub-user-name">{% if user.role == 'teacher' %}Teacher{% else %}Student{% endif %} workspace</span>
-            <span class="hub-avatar">{{ user.display_name|first|upper }}</span>
-            <span class="hub-user-name">{{ user.display_name }}</span>
-            <form action="{% url 'logout' %}" method="post" class="m-0">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-sm btn-outline-danger">Sign Out</button>
-            </form>
-        </div>
-    </header>
+    {% include 'courses/_hub_topbar.html' %}
 
     <div class="hub-layout flex-grow-1">
         {% include 'courses/_hub_sidebar.html' with active_nav='courses' %}
@@ -34,15 +21,11 @@
                 {% endfor %}
             {% endif %}
 
-            <section class="course-hero">
-                <div>
-                    <p class="course-hero-label">METROCLASS COURSE</p>
+            <section class="course-hero course-command course-accent" style="--course-accent: {{ course.accent_color }};">
+                <div class="course-command-copy">
                     <h1>{{ course.title }}</h1>
                     <p class="course-hero-description">{{ course.description|default:"Welcome to this MetroClass course." }}</p>
-                    <div class="course-hero-meta">
-                        <span>Teacher: {{ course.teacher.display_name }}</span>
-                        <span>Course code: <strong>{{ course.course_code }}</strong></span>
-                    </div>
+                    <div class="course-command-meta"><span>Instructor <strong>{{ course.teacher.display_name }}</strong></span><span>Group <strong>{{ course.group.name|default:"Independent" }}</strong></span><span>Course code <strong>{{ course.course_code }}</strong></span></div>
                 </div>
                 {% if user.role == "teacher" %}
                     <details class="course-hero-menu">
@@ -62,46 +45,31 @@
                 {% endif %}
             </section>
 
-            <div class="course-tabs" role="tablist">
-                <button class="course-tab active" data-course-panel="stream" type="button">Stream</button>
-                <button class="course-tab" data-course-panel="classwork" type="button">Classwork</button>
-                <button class="course-tab" data-course-panel="people" type="button">People</button>
+            <div class="course-tabs course-dock" role="tablist">
+                <button class="course-tab active" data-course-panel="stream" type="button"><span>⌁</span> Stream</button>
+                <button class="course-tab" data-course-panel="classwork" type="button"><span>▤</span> Classwork</button>
+                <button class="course-tab" data-course-panel="people" type="button"><span>◉</span> People</button>
             </div>
 
             <section class="course-panel active" id="stream">
                 <div class="course-panel-actions">
                     {% if user.role == "teacher" %}
-                        <a href="{% url 'create_announcement' course.id %}" class="btn hub-primary-button">Post Announcement</a>
-                        <a href="{% url 'create_material' course.id %}" class="btn btn-outline-secondary">+ Upload Lecture</a>
-                    {% endif %}
-                    {% if user.role != "teacher" %}
-                        <form action="{% url 'leave_course' course.id %}" method="post" onsubmit="return confirm('Leave this course? You will lose access to its announcements and assignments.');">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-danger">Leave Course</button>
-                        </form>
+                        <a href="{% url 'create_announcement' course.id %}" class="btn hub-primary-button">Post Update</a>
+                        <a href="{% url 'create_material' course.id %}" class="btn btn-outline-secondary">+ Lecture</a>
+                    {% else %}
+                        <form action="{% url 'leave_course' course.id %}" method="post" onsubmit="return confirm('Leave this course? You will lose access to its announcements and assignments.');">{% csrf_token %}<button type="submit" class="btn btn-sm btn-outline-danger">Leave Course</button></form>
                     {% endif %}
                 </div>
-
                 {% if announcements %}
-                    {% with announcement=announcements.0 %}
-                        <article class="course-post course-pinned-post">
-                            <p class="course-pin-label">LATEST ANNOUNCEMENT</p>
-                            <div class="course-post-heading">
-                                <span class="course-post-icon">A</span>
-                                <div><h2>{{ announcement.title }}</h2><p>Posted by {{ announcement.author.display_name }} · {{ announcement.created_at|date:"M d, Y, g:i A" }}</p></div>
-                                {% if user.role == "teacher" %}
-                                    <div class="course-post-controls">
-                                        <a href="{% url 'edit_announcement' announcement.id %}">Edit</a>
-                                        <form action="{% url 'delete_announcement' announcement.id %}" method="post" onsubmit="return confirm('Delete this announcement?');">{% csrf_token %}<button type="submit">Delete</button></form>
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <p class="course-post-message">{{ announcement.message|linebreaksbr }}</p>
-                        </article>
-                    {% endwith %}
-
-                    {% for announcement in announcements|slice:"1:" %}
-                        <article class="course-post">
+                    <section class="course-announcement-carousel" aria-label="Latest announcements">
+                        <div class="course-announcement-heading">
+                            <h2>Latest Announcements</h2>
+                            <span>{{ announcements|length }} posted</span>
+                        </div>
+                        <div class="course-announcement-viewport" tabindex="0" aria-label="Scroll or swipe to view announcements">
+                            <div class="course-announcement-track">
+                    {% for announcement in announcements %}
+                        <article class="course-post course-carousel-card{% if forloop.first %} is-current{% endif %}">
                             <div class="course-post-heading">
                                 <span class="course-post-icon">A</span>
                                 <div><h2>{{ announcement.title }}</h2><p>Posted by {{ announcement.author.display_name }} · {{ announcement.created_at|date:"M d, Y, g:i A" }}</p></div>
@@ -115,6 +83,10 @@
                             <p class="course-post-message">{{ announcement.message|linebreaksbr }}</p>
                         </article>
                     {% endfor %}
+                            </div>
+                        </div>
+                        <div class="course-announcement-indicator" aria-label="Announcement progress"></div>
+                    </section>
                 {% else %}
                     <div class="course-empty-state">No announcements have been posted yet.</div>
                 {% endif %}
@@ -143,7 +115,19 @@
                 {% for assignment in assignments %}
                     <article class="course-work-card">
                         <span class="course-work-icon">A</span>
-                        <div class="course-work-content"><h3>{{ assignment.title }}</h3><p>{{ assignment.instructions|truncatewords:20 }}</p><small>Due {{ assignment.due_date|date:"M d, Y, g:i A" }}</small></div>
+                        <div class="course-work-content">
+                            <h3>{{ assignment.title }}</h3>
+                            <p>{{ assignment.instructions|truncatewords:20 }}</p>
+                            <div class="course-work-meta">
+                                <small>Due {{ assignment.due_date|date:"M d, Y, g:i A" }}</small>
+                                {% if user.role == "student" %}
+                                    {% if assignment.student_submission %}
+                                        {% if assignment.student_submission.graded_at %}<span class="assignment-status assignment-status-graded">Finished · {{ assignment.student_submission.score }} marks</span>
+                                        {% else %}<span class="assignment-status assignment-status-submitted">Done · Waiting for review</span>{% endif %}
+                                    {% else %}<span class="assignment-status assignment-status-todo">To do</span>{% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
                         <a href="{% url 'assignment_detail' assignment.id %}" class="btn btn-sm btn-outline-secondary">Open</a>
                         {% if user.role == "teacher" %}
                             <div class="course-work-controls"><a href="{% url 'edit_assignment' assignment.id %}">Edit</a><form action="{% url 'delete_assignment' assignment.id %}" method="post" onsubmit="return confirm('Delete this assignment and all student submissions?');">{% csrf_token %}<button type="submit">Delete</button></form></div>
@@ -171,6 +155,65 @@
             courseTabs.forEach(item => item.classList.toggle('active', item === tab));
             coursePanels.forEach(panel => panel.classList.toggle('active', panel.id === tab.dataset.coursePanel));
         }));
+
+        const announcementViewport = document.querySelector('.course-announcement-viewport');
+        const announcementTrack = document.querySelector('.course-announcement-track');
+        const announcementCards = [...document.querySelectorAll('.course-carousel-card')];
+        const announcementIndicator = document.querySelector('.course-announcement-indicator');
+
+        if (announcementViewport && announcementTrack && announcementCards.length && announcementIndicator) {
+            const maxDots = 6;
+            const dotCount = Math.min(announcementCards.length, maxDots);
+            let activeAnnouncement = 0;
+            let isChangingAnnouncement = false;
+            let touchStartY = 0;
+
+            const getDotIndex = (cardIndex) => announcementCards.length <= maxDots
+                ? cardIndex
+                : Math.round((cardIndex / (announcementCards.length - 1)) * (dotCount - 1));
+
+            const dots = Array.from({ length: dotCount }, (_, index) => {
+                const dot = document.createElement('button');
+                dot.type = 'button';
+                dot.setAttribute('aria-label', `Go to announcement ${index + 1}`);
+                dot.addEventListener('click', () => {
+                    showAnnouncement(Math.round((index / (dotCount - 1 || 1)) * (announcementCards.length - 1)));
+                });
+                announcementIndicator.append(dot);
+                return dot;
+            });
+
+            function updateIndicator() {
+                const activeDot = getDotIndex(activeAnnouncement);
+                dots.forEach((dot, index) => dot.classList.toggle('is-active', index === activeDot));
+            }
+
+            function showAnnouncement(nextIndex) {
+                const newIndex = Math.max(0, Math.min(nextIndex, announcementCards.length - 1));
+                if (newIndex === activeAnnouncement || isChangingAnnouncement) return;
+                activeAnnouncement = newIndex;
+                isChangingAnnouncement = true;
+                announcementTrack.style.transform = `translateY(-${announcementCards[activeAnnouncement].offsetTop}px)`;
+                announcementCards.forEach((card, index) => card.classList.toggle('is-current', index === activeAnnouncement));
+                updateIndicator();
+                window.setTimeout(() => { isChangingAnnouncement = false; }, 650);
+            }
+
+            announcementViewport.addEventListener('wheel', event => {
+                event.preventDefault();
+                if (Math.abs(event.deltaY) > 8) showAnnouncement(activeAnnouncement + Math.sign(event.deltaY));
+            }, { passive: false });
+            announcementViewport.addEventListener('touchstart', event => { touchStartY = event.changedTouches[0].clientY; }, { passive: true });
+            announcementViewport.addEventListener('touchend', event => {
+                const distance = touchStartY - event.changedTouches[0].clientY;
+                if (Math.abs(distance) > 30) showAnnouncement(activeAnnouncement + Math.sign(distance));
+            }, { passive: true });
+            announcementViewport.addEventListener('keydown', event => {
+                if (event.key === 'ArrowDown') showAnnouncement(activeAnnouncement + 1);
+                if (event.key === 'ArrowUp') showAnnouncement(activeAnnouncement - 1);
+            });
+            updateIndicator();
+        }
     </script>
 </body>
 </html>

@@ -2,6 +2,7 @@ import random
 import string
 
 from django.conf import settings
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 
 
@@ -58,6 +59,16 @@ class Course(models.Model):
         unique=True,
         default=generate_course_code,
         editable=False,
+    )
+    accent_color = models.CharField(
+        max_length=7,
+        default="#2F6F83",
+        validators=[
+            RegexValidator(
+                regex=r"^#[0-9A-Fa-f]{6}$",
+                message="Choose a valid six-digit color.",
+            )
+        ],
     )
     created_at = models.DateTimeField(auto_now_add=True)
     is_archived = models.BooleanField(default=False)
@@ -153,6 +164,10 @@ class Assignment(models.Model):
     )
     title = models.CharField(max_length=150)
     instructions = models.TextField()
+    resource_file = models.FileField(
+        upload_to="assignment_resources/", blank=True, null=True
+    )
+    resource_link = models.URLField(blank=True)
     due_date = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -177,6 +192,15 @@ class Submission(models.Model):
     )
     file = models.FileField(upload_to="submissions/")
     comment = models.TextField(blank=True)
+    score = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+    )
+    feedback = models.TextField(blank=True)
+    graded_at = models.DateTimeField(blank=True, null=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

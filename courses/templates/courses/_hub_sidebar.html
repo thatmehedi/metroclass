@@ -1,10 +1,9 @@
 <aside class="hub-sidebar">
-  <button class="mobile-nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
   <div class="hub-nav-content">
     <span class="hub-sidebar-label">{% if user.role == "teacher" %}TEACHER NAVIGATION{% else %}NAVIGATION{% endif %}</span>
     <a href="{% url 'dashboard' %}" class="hub-nav-link {% if active_nav == 'overview' %}active{% endif %}"><span>&#9638;</span><span class="hub-nav-label">Overview</span></a>
-    <a href="{% url 'my_courses' %}" class="hub-nav-link {% if active_nav == 'courses' %}active{% endif %}"><span>&#9635;</span><span class="hub-nav-label">My Courses</span></a>
-    <div class="hub-course-nav-list">
+    <button class="hub-nav-link hub-course-menu-toggle {% if active_nav == 'courses' %}active{% endif %}" type="button" aria-expanded="{% if active_nav == 'courses' or active_course_id %}true{% else %}false{% endif %}"><span>&#9635;</span><span class="hub-nav-label">My Courses</span><span class="hub-course-toggle-icon" aria-hidden="true"></span></button>
+    <div class="hub-course-nav-list {% if active_nav == 'courses' or active_course_id %}is-open{% endif %}">
       {% for course in navigation_courses %}
         <a href="{% url 'course_detail' course.id %}" class="hub-course-nav-item {% if course.id == active_course_id %}active-course-nav-item{% endif %}" {% if course.id == active_course_id %}id="active-course-navigation"{% endif %}><strong>{{ course.title }}</strong><small>Code: {{ course.course_code }}</small></a>
       {% empty %}
@@ -18,14 +17,14 @@
       <a href="{% url 'all_announcements' %}" class="hub-nav-link {% if active_nav == 'announcements' %}active{% endif %}"><span>&#9673;</span><span class="hub-nav-label">Announcements</span></a>
       <a href="{% url 'deadlines' %}" class="hub-nav-link {% if active_nav == 'deadlines' %}active{% endif %}"><span>&#9719;</span><span class="hub-nav-label">Deadlines</span></a>
     {% endif %}
-    <a href="{% url 'archived_courses' %}" class="hub-nav-link {% if active_nav == 'archived' %}active{% endif %}"><span>&#9636;</span><span class="hub-nav-label">Archived Courses</span></a>
     <a href="{% url 'edit_profile' %}" class="hub-nav-link {% if active_nav == 'settings' %}active{% endif %}"><span>&#9881;</span><span class="hub-nav-label">Settings</span></a>
   </div>
   <button class="mobile-nav-backdrop" type="button" aria-label="Close navigation"></button>
 </aside>
 <script>
   document.querySelectorAll('.mobile-nav-toggle').forEach(button => button.addEventListener('click', () => {
-    const sidebar = button.closest('.hub-sidebar');
+    const sidebar = document.querySelector('.hub-sidebar');
+    if (!sidebar) return;
     const open = sidebar.classList.toggle('mobile-menu-open');
     button.setAttribute('aria-expanded', open);
   }));
@@ -34,8 +33,18 @@
     sidebar.classList.remove('mobile-menu-open');
     sidebar.querySelector('.mobile-nav-toggle').setAttribute('aria-expanded', 'false');
   }));
+  document.querySelectorAll('.hub-course-menu-toggle').forEach(button => button.addEventListener('click', () => {
+    const courseList = button.nextElementSibling;
+    const isOpen = courseList.classList.toggle('is-open');
+    button.setAttribute('aria-expanded', isOpen);
+  }));
+  document.querySelectorAll('.hub-desktop-nav-toggle').forEach(button => button.addEventListener('click', () => {
+    const layout = button.closest('.hub-page').querySelector('.hub-layout');
+    const isCollapsed = layout.classList.toggle('sidebar-collapsed');
+    button.setAttribute('aria-expanded', !isCollapsed);
+  }));
   document.addEventListener('click', event => {
-    document.querySelectorAll('details.hub-course-menu[open], details.course-hero-menu[open]').forEach(menu => {
+    document.querySelectorAll('details.hub-course-menu[open], details.course-hero-menu[open], details.hub-top-course-menu[open]').forEach(menu => {
       if (!menu.contains(event.target)) menu.removeAttribute('open');
     });
   });

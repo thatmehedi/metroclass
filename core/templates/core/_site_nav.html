@@ -1,9 +1,6 @@
 {% load static %} {% if user.is_authenticated %} {% include
 "courses/_hub_topbar.html" %} {% else %}
-<nav
-  class="navbar navbar-expand-lg navbar-dark public-navbar"
-  style="background-color: #14194b"
->
+<nav class="navbar navbar-expand-lg navbar-dark public-navbar">
   <div class="container">
     <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}"
       ><img
@@ -13,11 +10,10 @@
         class="bg-white border border-white rounded p-1"
     /></a>
     <div class="ms-auto">
-      <a href="{% url 'login' %}" class="btn btn-outline-light me-2">Sign In</a
+      <a href="{% url 'login' %}" class="btn public-auth-button me-2">Sign In</a
       ><a
         href="{% url 'register' %}"
-        class="btn text-white"
-        style="background-color: #ea1d22"
+        class="btn public-auth-button public-auth-button-primary"
         >Sign Up</a
       >
     </div>

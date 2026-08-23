@@ -16,6 +16,8 @@ urlpatterns = [
     path("materials/", views.course_materials, name="course_materials"),
     path("deadlines/", views.deadlines, name="deadlines"),
     path("archived/", views.archived_courses, name="archived_courses"),
+    path("announcements/quick-create/", views.quick_announcement, name="quick_announcement"),
+    path("assignments/quick-create/", views.quick_assignment, name="quick_assignment"),
     path("<int:course_id>/lectures/create/", views.create_material, name="create_material"),
     path("lectures/<int:material_id>/edit/", views.edit_material, name="edit_material"),
     path("lectures/<int:material_id>/delete/", views.delete_material, name="delete_material"),
@@ -80,6 +82,11 @@ urlpatterns = [
         "assignments/<int:assignment_id>/submissions/",
         views.view_submissions,
         name="view_submissions",
+    ),
+    path(
+        "submissions/<int:submission_id>/grade/",
+        views.grade_submission,
+        name="grade_submission",
     ),
     path("<int:course_id>/", views.course_detail, name="course_detail"),
 ]
