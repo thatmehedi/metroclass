@@ -1,38 +1,60 @@
 # MetroClass
 
-> A modern Classroom Management System built with Django.
+MetroClass is a role-based **Classroom Management System** built with Django for a university project. It helps teachers manage course activities and lets students follow their academic work from one place.
 
-[Open the Live Demo](https://thatmehedi.pythonanywhere.com)
+## Live Demo
 
-MetroClass helps teachers manage courses, announcements, lectures, assignments, and student submissions in one clean workspace. It is inspired by classroom-learning platforms while using its own MetroClass design and workflow.
+**Website:** [https://thatmehedi.pythonanywhere.com/](https://thatmehedi.pythonanywhere.com/)
 
-## Features
+| Role | Username | Password |
+| --- | --- | --- |
+| Student | `s1` | `Demo@12345` |
+| Teacher | `t1` | `Demo@12345` |
 
-### Students
+## Main Features
 
-- Register, sign in, and manage account settings
-- Join and leave courses
-- View course announcements and lectures
-- View assignments and submit work
-- Track upcoming assignment deadlines
+### Student
 
-### Teachers
+- Register, sign in, sign out, edit profile, and change password
+- Join courses using a course code
+- View joined courses, announcements, lectures, and assignments
+- Submit, update, or delete assignment submissions
+- View deadlines, marks, and teacher feedback
+- Leave courses and view archived courses
+
+### Teacher
 
 - Create, edit, archive, and delete courses
-- Organize courses by batch or group
-- Post and manage announcements
-- Upload lecture files or share external links
-- Create assignments and review student submissions
+- Create groups for courses such as batch or section
+- Post, edit, and delete announcements
+- Upload lecture files and add external learning links
+- Create and edit assignments with due dates and resources
+- View student submissions and provide marks with written feedback
+- Review pending submissions from the teacher dashboard
 
 ## Technology Stack
 
 - Python
 - Django
+- SQLite
 - HTML
 - CSS
 - JavaScript
 - Bootstrap 5
-- SQLite (development and demo deployment)
+- GitHub
+- PythonAnywhere
+
+## Project Structure
+
+```text
+MetroClass/
+├── accounts/      # Authentication, users, profiles, dashboards
+├── courses/       # Courses, announcements, lectures, assignments, submissions
+├── core/          # Home page, shared templates, CSS, logo and static files
+├── metroclass/    # Django settings and root URL configuration
+├── manage.py       # Django command-line management file
+└── requirements.txt
+```
 
 ## Run Locally
 
@@ -42,7 +64,15 @@ cd metroclass
 python -m venv venv
 ```
 
-Activate the virtual environment, then install packages:
+Activate the virtual environment.
+
+**Windows PowerShell:**
+
+```powershell
+.\venv\Scripts\Activate.ps1
+```
+
+Install dependencies and start the project:
 
 ```bash
 pip install -r requirements.txt
@@ -50,25 +80,14 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-Open `http://127.0.0.1:8000/` in your browser.
+Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) in a browser.
 
-## Project Structure
+## Deployment
 
-```text
-metroclass/
-├── accounts/      # Authentication, profiles, dashboards
-├── courses/       # Courses, announcements, lectures, assignments
-├── core/          # Home page, shared static files, styling
-├── metroclass/    # Django project configuration
-└── manage.py
-```
+The project is deployed on PythonAnywhere for online demonstration.
 
-## Live Deployment
-
-MetroClass is deployed on PythonAnywhere for project presentation.
-
-**Live URL:** https://thatmehedi.pythonanywhere.com
+**Live URL:** [https://thatmehedi.pythonanywhere.com/](https://thatmehedi.pythonanywhere.com/)
 
 ---
 
-Created as a university project by [Mehedi Hasan](https://github.com/thatmehedi).
+Created by [Mehedi Hasan](https://github.com/thatmehedi) as a university project.
