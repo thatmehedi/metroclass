@@ -38,6 +38,14 @@ MetroClass is a role-based **Classroom Management System** built with Django for
 - View student submissions and provide marks with written feedback
 - Review pending submissions from the teacher dashboard
 
+## User Workflow
+
+1. A teacher creates a course and receives a course code.
+2. A student joins that course by entering the code.
+3. The teacher shares announcements, study materials, and assignments.
+4. The student submits work before the deadline.
+5. The teacher adds marks and written feedback for the submission.
+
 ## Technology Stack
 
 - Python
