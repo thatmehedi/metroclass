@@ -2,6 +2,12 @@
 
 MetroClass is a role-based **Classroom Management System** built with Django for a university project. It helps teachers manage course activities and lets students follow their academic work from one place.
 
+## Project Objectives
+
+- Keep course communication, resources, assignments, and submissions in one system.
+- Give teachers and students separate workspaces based on their role.
+- Make assignment deadlines, marks, and feedback easy to track.
+
 ## Live Demo
 
 **Website:** [https://thatmehedi.pythonanywhere.com/](https://thatmehedi.pythonanywhere.com/)
