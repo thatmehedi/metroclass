@@ -106,6 +106,17 @@ The project is deployed on PythonAnywhere for online demonstration.
 
 **Live URL:** [https://thatmehedi.pythonanywhere.com/](https://thatmehedi.pythonanywhere.com/)
 
+After pushing an update to GitHub, the PythonAnywhere deployment is refreshed with:
+
+```bash
+cd ~/metroclass
+git pull origin main
+~/metroclass/venv/bin/python manage.py migrate
+~/metroclass/venv/bin/python manage.py collectstatic --noinput
+```
+
+Then reload the web app from the PythonAnywhere **Web** tab.
+
 ---
 
 Created by [Mehedi Hasan](https://github.com/thatmehedi) as a university project.
