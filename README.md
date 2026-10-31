@@ -70,6 +70,10 @@ MetroClass/
 └── requirements.txt
 ```
 
+## Database Overview
+
+The project uses Django models and SQLite. The main records are `User`, `CourseGroup`, `Course`, `Enrollment`, `Announcement`, `StudyMaterial`, `Assignment`, and `Submission`. These records connect teachers, students, course content, and submitted work.
+
 ## Run Locally
 
 ```bash
