@@ -25,6 +25,12 @@
       <a href="{% url 'all_announcements' %}" class="{% if active_nav == 'announcements' %}active{% endif %}">Announcements</a>
       <a href="{% url 'deadlines' %}" class="{% if active_nav == 'deadlines' %}active{% endif %}">Deadlines</a>
     {% endif %}
+    <a href="{% url 'notification_list' %}" class="{% if active_nav == 'notifications' %}active{% endif %}">
+      Notifications
+      {% if unread_notifications_count > 0 %}
+        <span class="badge bg-danger rounded-pill ms-1" style="font-size: 0.7rem;">{{ unread_notifications_count }}</span>
+      {% endif %}
+    </a>
     <a href="{% url 'edit_profile' %}" class="{% if active_nav == 'settings' %}active{% endif %}">Settings</a>
   </nav>
   <div class="hub-top-user d-flex align-items-center gap-2 gap-md-3">

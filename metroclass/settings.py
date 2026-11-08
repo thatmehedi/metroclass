@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'core',
     'accounts',
     'courses',
+    'notifications',
 ]
 
 MIDDLEWARE = [
@@ -75,6 +76,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'courses.context_processors.navigation_courses',
+                'notifications.context_processors.notification_context',
             ],
         },
     },
@@ -141,3 +143,9 @@ MEDIA_ROOT = BASE_DIR / "media"
 AUTH_USER_MODEL = "accounts.User"
 
 LOGIN_URL = "login"
+
+
+
+# Email Configuration (Prints emails to the terminal for testing)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'MetroClass <no-reply@metroclass.local>'
